@@ -6,58 +6,65 @@ namespace 番剧集数重命名
     {
         static void Main(string[] args)
         {
-            Console.Write("请输入文件夹路径: ");
-            string path = Console.ReadLine();
-            Console.Write("请输入默认季（如S01）。如果路径中的文件夹名没有包含季，将以这个作为默认。回车默认S01 ");
-            string season_default = Console.ReadLine();
-            if (season_default == null || season_default == "")
+            while (true)
             {
-                season_default = "S01";
-            }
-            Console.WriteLine("更改结果预览：");
-            List<string> result = SearchFiles(path, new string[] { ".avi", ".mp4", ".mkv", ".srt", ".ass" });
-            List<Tuple<string, string>> newNames = new List<Tuple<string, string>>();
-            foreach (string fullPath in result)
-            {
-                var newName = ChangeName(fullPath, season_default);
-                if (newName != null)
+                Console.Write("请输入文件夹路径: ");
+                string path = Console.ReadLine();
+                Console.Write("请输入默认季（如S01）。如果路径中的文件夹名没有包含季，将以这个作为默认。回车默认S01 ");
+                string season_default = Console.ReadLine();
+                if (season_default == null || season_default == "")
                 {
-                    newNames.Add(Tuple.Create(fullPath, newName));
-                    Console.WriteLine($"旧：{fullPath}");
-                    Console.WriteLine($"新：{newName}");
-                    Console.WriteLine("");
+                    season_default = "S01";
                 }
-            }
-            if (newNames.Count == 0)
-            {
-                Console.Write("没有可替换的。");
-            }
-            else 
-            {
-                Console.Write($"共计 {newNames.Count} 个。输入任意字符取消替换，回车开始替换：");
-                string command = Console.ReadLine();
-                if (command == "")
+                Console.WriteLine("更改结果预览：");
+                List<string> result = SearchFiles(path, new string[] { ".avi", ".mp4", ".mkv", ".srt", ".ass" });
+                List<Tuple<string, string>> newNames = new List<Tuple<string, string>>();
+                foreach (string fullPath in result)
                 {
-                    foreach (Tuple<string, string> a in newNames)
+                    var newName = ChangeName(fullPath, season_default);
+                    if (newName != null)
                     {
-                        try
-                        {
-                            File.Move(a.Item1, a.Item2);
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.Write($"替换因错误被中止。{ex}");
-                        }
+                        newNames.Add(Tuple.Create(fullPath, newName));
+                        Console.WriteLine($"旧：{fullPath}");
+                        Console.WriteLine($"新：{newName}");
+                        Console.WriteLine("");
                     }
-                    Console.Write($"替换完成。");
+                }
+                if (newNames.Count == 0)
+                {
+                    Console.Write("没有可替换的。");
                 }
                 else 
                 {
-                    Console.Write("替换被取消。");
+                    Console.Write($"共计 {newNames.Count} 个。输入任意字符取消替换，回车开始替换：");
+                    string command = Console.ReadLine();
+                    if (command == "")
+                    {
+                        foreach (Tuple<string, string> a in newNames)
+                        {
+                            try
+                            {
+                                File.Move(a.Item1, a.Item2);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.Write($"替换因错误被中止。{ex}");
+                            }
+                        }
+                        Console.Write($"替换完成。");
+                    }
+                    else 
+                    {
+                        Console.Write("替换被取消。");
+                    }
+                }
+                Console.Write("输入任意字符退出，回车再来一次：");
+                string command2 = Console.ReadLine();
+                if (command2 != null && command2 != "")
+                {
+                    break;
                 }
             }
-            Console.Write("按任意键退出……");
-            Console.ReadKey();
         }
 
         static string ChangeName(string fullPath, string season_default="S01")
