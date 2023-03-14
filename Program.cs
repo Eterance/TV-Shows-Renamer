@@ -8,6 +8,7 @@ namespace 番剧集数重命名
         {
             while (true)
             {
+                // 节目命名参考：https://jellyfin.org/docs/general/server/media/shows
                 Console.Write("请输入文件夹路径: ");
                 string path = Console.ReadLine();
                 Console.Write("请输入默认季（如S01）。如果路径中的文件夹名没有包含季，将以这个作为默认。回车默认S01：");
@@ -17,7 +18,8 @@ namespace 番剧集数重命名
                     season_default = "S01";
                 }
                 Console.WriteLine("更改结果预览：");
-                List<string> result = SearchFiles(path, new string[] { ".avi", ".mp4", ".mkv", ".srt", ".ass" });
+                // 搜索视频文件和字幕文件
+                List<string> result = SearchFiles(path, new string[] { ".avi", ".mp4", ".mkv", ".srt", ".ass", ".ssa" });
                 List<Tuple<string, string>> newNames = new List<Tuple<string, string>>();
                 foreach (string fullPath in result)
                 {
