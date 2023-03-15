@@ -23,6 +23,10 @@ namespace 番剧集数重命名
                 List<Tuple<string, string>> newNames = new List<Tuple<string, string>>();
                 foreach (string fullPath in result)
                 {
+                    if (CheckFileNameAlreadyReplaced(fullPath))
+                    {
+                        continue;
+                    }
                     var newName = ChangeName(fullPath, season_default);
                     if (newName != null)
                     {
@@ -69,6 +73,30 @@ namespace 番剧集数重命名
             }
         }
 
+        static bool CheckFileNameAlreadyReplaced(string filePath)
+        {
+            // Check if the file exists
+            if (File.Exists(filePath))
+            {
+                // Get the file name from the file path
+                string fileName = Path.GetFileName(filePath);
+
+                // Define a regular expression pattern to match "S{number}E{number}"
+                string pattern = @"S\d+E\d+";
+
+                // Create a Regex object with the pattern
+                Regex regex = new Regex(pattern);
+
+                // Check if the file name matches the pattern and return the result
+                return regex.IsMatch(fileName);
+            }
+            else
+            {
+                // Throw an exception if the file does not exist
+                throw new FileNotFoundException("The file does not exist.");
+            }
+        }
+
         static string ChangeName(string fullPath, string season_default="S01")
         {
             // 匹配季
@@ -108,6 +136,7 @@ namespace 番剧集数重命名
 
         static List<string> SearchFiles(string dirPath, string[] extensions)
         {
+            string[] ignoreFolderNames = new string[3] { "sps", "extra", "sp" };
             List<string> result = new List<string>();
             try
             {
@@ -121,6 +150,16 @@ namespace 番剧集数重命名
                 // 遍历当前目录下的所有子目录
                 foreach (var subDir in Directory.GetDirectories(dirPath))
                 {
+                    bool flag = false;
+                    for (int i = 0; i < ignoreFolderNames.Length; i++)
+                    {
+                        if (subDir.ToLower().Contains(ignoreFolderNames[i]))
+                        {
+                            flag = true;
+                            continue;
+                        }
+                    }
+                    if (flag) continue;
                     result.AddRange(SearchFiles(subDir, extensions));
                 }
             }
